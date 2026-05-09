@@ -17,9 +17,7 @@ export default {
         return m.reply('《✧》 No se encontró información del video.')
       }
 
-     // const randomIndex = Math.floor(Math.random() * searchResult.videos.length)
       const video = searchResult.videos[0]
-
       const { title, author, timestamp: duration, views, url, image } = video
       const vistas = (views || 0).toLocaleString()
       const canal = author?.name || author || 'Desconocido'
@@ -36,7 +34,7 @@ export default {
 
       await sock.sendMessage(m.chat, { image: thumbBuffer, caption }, { quoted: m })
 
-      const dlEndpoint = `${global.api.url}/dl/ytmp3v2?url=${encodeURIComponent(url)}&key=${global.api.key}`
+      const dlEndpoint = `${api.url}/dl/youtubeplayv2?query=${encodeURIComponent(text)}&type=mp3&quality=auto&key=${api.key}`
       const resDl = await fetch(dlEndpoint).then(r => r.json())
       if (!resDl?.status || !resDl.data?.dl) {
         return m.reply('《✧》 No se pudo descargar el *audio*, intenta más tarde.')
@@ -46,12 +44,12 @@ export default {
       const mensaje = {
         audio: audioBuffer,
         mimetype: 'audio/mpeg',
-        fileName: `${resDl.data.title}.mp3` || `${title}.mp3`
+        fileName: resDl.data.fileName || `${title}.mp3`
       }
 
       await sock.sendMessage(m.chat, mensaje, { quoted: m })
     } catch (e) {
-      await m.reply(msgglobal)
+      await m.reply(msgglobal + e)
     }
   }
 }
