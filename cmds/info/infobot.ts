@@ -1,3 +1,4 @@
+import { prepareWAMessageMedia } from '@whiskeysockets/baileys';
 import os from 'os';
 
 function rTime(seconds) {
@@ -80,21 +81,26 @@ export default {
 
 > \`Enlace:\` ${link}`.trim()
 
-    await sock.sendMessage(m.chat, {
-      text: message,
-      contextInfo: {
-        mentionedJid: [...message.matchAll(/@([0-9]{5,16}|0)/g)].map(v => v[1] + '@s.whatsapp.net'),
-        externalAdReply: {
-          renderLargerThumbnail: true,
-          title: botname,
-          body: `${botname2}, Built With 💛 By Stellar`,
-          mediaType: 1,
-          thumbnailUrl: banner,
-         // thumbnail: banner,
-         // sourceUrl: redes
-        }
+      const menu = message
+      const isVideo = banner.includes('.mp4') || banner.includes('.gif') || banner.includes('.webm');
+      const contextBase = {
+        mentionedJid: [owner, m.sender].filter(Boolean),
+        isForwarded: false
+      };
+
+      if (isVideo) {
+        await sock.sendMessage(
+          m.chat,
+          { video: { url: banner }, caption: menu.trim(), contextInfo: contextBase },
+          { quoted: m }
+        );
+      } else {
+        await sock.sendMessage(m.chat, { 
+          text: menu.trim(), 
+          linkPreview: link && banner ? (await prepareWAMessageMedia({ image: { url: banner } }, { upload: sock.waUploadToServer, mediaTypeOverride: 'thumbnail-link' }).then(({ imageMessage }) => ({ 'canonical-url': link, 'matched-text': link, title: botname, description: `${botname2}, Built With 💛 By Stellar`, jpegThumbnail: imageMessage?.jpegThumbnail ? Buffer.from(imageMessage.jpegThumbnail) : undefined, highQualityThumbnail: imageMessage || undefined }))) : undefined, 
+          contextInfo: contextBase
+        }, { quoted: m });
       }
-    }, { quoted: m })
 
    } catch (e) {
      m.reply(msgglobal)
