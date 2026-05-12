@@ -134,7 +134,7 @@ export const commands = [
     { "name": "delwarn", "desc": "Elimina una advertencia específica de un usuario.", "alias": ["/delwarn"], "category": "grupo", "uso": "_<mention> <número|all>_" },
     { "name": "setwarnlimit", "desc": "Establece el límite máximo de advertencias permitidas en el grupo.", "alias": ["/setwarnlimit"], "category": "grupo", "uso": "_<número>_" },
     {"name": "clear", "desc": "Elimina usuarios inactivos tras 30 días, o consulta actividad con 'views'", "alias": ["/clear"], "category": "grupo", "uso": "_<delete|views>_"},
-    {"name": "setgpbaner", "desc": "Cambia la imagen del grupo.", "alias": ["/setgpbaner"], "category": "grupo"},
+    {"name": "setgpbanner", "desc": "Cambia la imagen del grupo.", "alias": ["/setgpbanner"], "category": "grupo"},
     {"name": "setgpname", "desc": "Cambia el nombre del grupo.", "alias": ["/setgpname"], "category": "grupo", "uso": "_<text>_"},
     {"name": "setgpdesc", "desc": "Cambia la descripción del grupo.", "alias": ["/setgpdesc"], "category": "grupo", "uso": "_<text>_"},
     { name: "closet", desc: "Permite cerrar o abrir el grupo de forma inmediata o programada.", alias: ["/closet", "/open"], category: "grupo", uso: "_<tiempo>_" },
