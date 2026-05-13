@@ -78,7 +78,7 @@ export default async (sock, m) => {
               }))
             ) : undefined, 
             contextInfo: contextBase
-          }, { quoted: m })
+          }, { quoted: null })
         }
 
         if ((anu.action === 'remove' || anu.action === 'leave') && chat?.goodbye && (!primaryBotId || primaryBotId === botId)) {
@@ -123,7 +123,7 @@ export default async (sock, m) => {
               }))
             ) : undefined, 
             contextInfo: contextBase
-          }, { quoted: m })
+          }, { quoted: null })
         }
 
         if (anu.action === 'promote' && chat?.alerts && (!primaryBotId || primaryBotId === botId)) {
