@@ -131,7 +131,7 @@ export default async (sock, m) => {
           await sock.sendMessage(anu.id, {
             text: `「✎」 *@${phone}* ha sido promovido a Administrador por *@${usuario.split('@')[0]}.*`,
             mentions: [p.phoneNumber, usuario]
-          }, { quoted: m })
+          })
         }
 
         if (anu.action === 'demote' && chat?.alerts && (!primaryBotId || primaryBotId === botId)) {
@@ -139,7 +139,7 @@ export default async (sock, m) => {
           await sock.sendMessage(anu.id, {
             text: `「✎」 *@${phone}* ha sido degradado de Administrador por *@${usuario.split('@')[0]}.*`,
             mentions: [p.phoneNumber, usuario]
-          }, { quoted: m })
+          })
         }
       }
     } catch (err) {
