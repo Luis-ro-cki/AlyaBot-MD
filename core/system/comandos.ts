@@ -248,5 +248,6 @@ export const commands = [
     {"name": "toimg", "desc": "Convertir un sticker en una imagen.", "alias": ["/toimg", "/toimage"], "category": "utils"},
     {"name": "tourl", "desc": "Convierte la imagen en un link.", "alias": ["/tourl"], "category": "utils", "uso": "_<servidor>_" },
     {"name": "get", "desc": "Realiza solicitudes get a páginas web.", "alias": ["/get"], "category": "utils", "uso": "_<url>_"},
-    {"name": "removebg", "desc": "Remueve el fondo de una imagen.", "alias": ["/removebg"], "category": "utils" }
+    {"name": "removebg", "desc": "Remueve el fondo de una imagen.", "alias": ["/removebg"], "category": "utils" },
+    {"name": "whatmusic", "desc": "Reconoce canciones desde audios o videos.", "alias": ["/whatmusic", "/shazam"], "category": "utils"}
 ];
