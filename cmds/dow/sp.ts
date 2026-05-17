@@ -48,11 +48,11 @@ export default {
 
       const resAudio = await fetch(`${api.url}/dl/spotify?url=${encodeURIComponent(url)}&key=${api.key}`)
       const resultAudio = await resAudio.json()
-      if (!resultAudio.status || !resultAudio.data?.mp3) {
+      if (!resultAudio.status || !resultAudio.data?.dl) {
         return m.reply('❖ No se pudo descargar el audio de Spotify.')
       }
 
-      const audioRes = await fetch(resultAudio.data.mp3)
+      const audioRes = await fetch(resultAudio.data.dl)
       if (!audioRes.ok) {
         return m.reply('❖ Error al obtener el archivo de audio.')
       }
