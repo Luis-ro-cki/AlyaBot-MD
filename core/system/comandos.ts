@@ -249,5 +249,6 @@ export const commands = [
     {"name": "tourl", "desc": "Convierte la imagen en un link.", "alias": ["/tourl"], "category": "utils", "uso": "_<servidor>_" },
     {"name": "get", "desc": "Realiza solicitudes get a páginas web.", "alias": ["/get"], "category": "utils", "uso": "_<url>_"},
     {"name": "removebg", "desc": "Remueve el fondo de una imagen.", "alias": ["/removebg"], "category": "utils" },
-    {"name": "whatmusic", "desc": "Reconoce canciones desde audios o videos.", "alias": ["/whatmusic", "/shazam"], "category": "utils"}
+    {"name": "whatmusic", "desc": "Reconoce canciones desde audios o videos.", "alias": ["/whatmusic", "/shazam"], "category": "utils"},
+    {"name": "viewonce", "desc": "Revela archivos o mensajes configurados para ver solo una vez.", "alias": ["/reveal", "/viewonce", "/ver"], "category": "utils"}
 ];
