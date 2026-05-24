@@ -1,6 +1,28 @@
 import ytsearch from 'yt-search'
 import { getBuffer } from '../../core/message.ts'
-import fetch from 'node-fetch'
+
+const isYouTubeUrl = (text = '') => {
+  return /(?:https?:\/\/)?(?:www\.|m\.|music\.)?(?:youtube\.com|youtu\.be)\S+/i.test(text)
+}
+
+const getYouTubeUrl = (text = '') => {
+  const match = text.match(/(?:https?:\/\/)?(?:www\.|m\.|music\.)?(?:youtube\.com|youtu\.be)\S+/i)
+  if (!match) return null
+  return match[0].startsWith('http') ? match[0] : `https://${match[0]}`
+}
+
+const formatSize = (bytes = 0) => {
+  if (!bytes) return 'Desconocido'
+  const mb = bytes / 1024 / 1024
+  return `${mb.toFixed(2)} MB`
+}
+
+const formatDuration = (seconds = 0) => {
+  if (!seconds) return 'Desconocido'
+  const min = Math.floor(seconds / 60)
+  const sec = seconds % 60
+  return `${min}:${String(sec).padStart(2, '0')}`
+}
 
 export default {
   command: ['play', 'mp3', 'ytmp3', 'ytaudio', 'playaudio'],
@@ -12,43 +34,102 @@ export default {
       }
 
       const text = args.join(' ')
-      const searchResult = await ytsearch(text)
-      if (!searchResult.videos || !searchResult.videos.length) {
-        return m.reply('《✧》 No se encontró información del video.')
+      let video = null
+      let videoUrl = null
+
+      if (isYouTubeUrl(text)) {
+        videoUrl = getYouTubeUrl(text)
+
+        const searchResult = await ytsearch(videoUrl).catch(() => null)
+        if (searchResult?.videos?.length) {
+          video = searchResult.videos[0]
+        }
+      } else {
+        const searchResult = await ytsearch(text)
+
+        if (!searchResult.videos || !searchResult.videos.length) {
+          return m.reply('《✧》 No se encontró información del video.')
+        }
+
+        video = searchResult.videos[0]
+        videoUrl = video.url
       }
 
-      const video = searchResult.videos[0]
-      const { title, author, timestamp: duration, views, url, image } = video
-      const vistas = (views || 0).toLocaleString()
-      const canal = author?.name || author || 'Desconocido'
-      const thumbBuffer = await getBuffer(image)
+      if (!videoUrl) {
+        return m.reply('《✧》 No se pudo obtener el enlace del video.')
+      }
+
+      const apiUrl = `https://api.nexray.eu.cc/downloader/ytmp3?url=${encodeURIComponent(videoUrl)}`
+
+      const res = await fetch(apiUrl, {
+        headers: {
+          accept: 'application/json'
+        }
+      })
+
+      const json = await res.json().catch(() => null)
+
+      if (!res.ok || !json?.status || !json?.result?.url) {
+        return m.reply('《✧》 No se pudo descargar el *audio*, intenta más tarde.')
+      }
+
+      const data = json.result
+
+      const title = data.title || video?.title || 'Audio de YouTube'
+      const canal = video?.author?.name || video?.author || 'Desconocido'
+      const duration = data.duration ? formatDuration(data.duration) : video?.timestamp || 'Desconocido'
+      const vistas = video?.views ? video.views.toLocaleString() : 'Desconocido'
+      const thumbnail = data.thumbnail || video?.image
+      const fileName = data.filename || `${title}.mp3`
 
       const caption = `➥ Descargando › ${title}
 
 > ✿⃘࣪◌ ֪ Canal › ${canal}
-> ✿⃘࣪◌ ֪ Duración › ${duration || 'Desconocido'}
+> ✿⃘࣪◌ ֪ Duración › ${duration}
+> ✿⃘࣪◌ ֪ Calidad › ${data.quality || '320'}kbps
+> ✿⃘࣪◌ ֪ Tamaño › ${formatSize(data.size)}
 > ✿⃘࣪◌ ֪ Vistas › ${vistas}
-> ✿⃘࣪◌ ֪ Enlace › ${url}
+> ✿⃘࣪◌ ֪ Enlace › ${videoUrl}
 
 𐙚 ❀ ｡ ↻ El archivo se está enviando, espera un momento... ˙𐙚`
 
-      await sock.sendMessage(m.chat, { image: thumbBuffer, caption }, { quoted: m })
+      if (thumbnail) {
+        const thumbBuffer = await getBuffer(thumbnail).catch(() => null)
 
-      const dlEndpoint = `${api.url}/dl/youtubeplayv2?query=${encodeURIComponent(text)}&type=mp3&quality=auto&key=${api.key}`
-      const resDl = await fetch(dlEndpoint).then(r => r.json())
-      if (!resDl?.status || !resDl.data?.dl) {
-        return m.reply('《✧》 No se pudo descargar el *audio*, intenta más tarde.')
+        if (thumbBuffer) {
+          await sock.sendMessage(m.chat, { image: thumbBuffer, caption }, { quoted: m })
+        } else {
+          await m.reply(caption)
+        }
+      } else {
+        await m.reply(caption)
       }
 
-      const audioBuffer = await getBuffer(resDl.data.dl)
-      const mensaje = {
-        audio: audioBuffer,
-        mimetype: 'audio/mpeg',
-        fileName: resDl.data.fileName || `${title}.mp3`
-      }
+      try {
+        await sock.sendMessage(
+          m.chat,
+          {
+            audio: { url: data.url },
+            mimetype: 'audio/mpeg',
+            fileName
+          },
+          { quoted: m }
+        )
+      } catch {
+        const audioBuffer = await getBuffer(data.url)
 
-      await sock.sendMessage(m.chat, mensaje, { quoted: m })
+        await sock.sendMessage(
+          m.chat,
+          {
+            audio: audioBuffer,
+            mimetype: 'audio/mpeg',
+            fileName
+          },
+          { quoted: m }
+        )
+      }
     } catch (e) {
+      console.error(e)
       await m.reply(msgglobal)
     }
   }
